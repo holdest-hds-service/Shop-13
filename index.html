@@ -231,7 +231,6 @@
       background: rgba(0,0,0,.16);
       color: var(--muted);
       font-weight: 950;
-      cursor: pointer;
     }
     .likeBtn.liked{
       background: rgba(239,68,68,.18);
@@ -342,7 +341,7 @@
 
           <div style="display:flex; gap:10px; margin-top:12px;">
             <button class="btn-secondary" id="btnReset" style="flex:1;">Mot de passe oublié</button>
-            <button class="btn-danger" id="btnLogout" style="flex:1;">Déconnexion</button>
+            <button class="btn-danger hide" id="btnLogout" style="flex:1;">Déconnexion</button>
           </div>
 
           <div id="loginMsg" class="msg muted"></div>
@@ -391,6 +390,16 @@
 
       const authBadge = document.getElementById("authBadge");
       const feed = document.getElementById("feed");
+
+      // ✅ Debug global (sinon Edge peut planter sans que tu voies pourquoi)
+      window.addEventListener("error", (e) => {
+        console.error("Page error:", e.error || e.message);
+        if (feed) feed.innerHTML = `<div class="error-msg">⚠️ Erreur page: ${e.message || "inconnue"}</div>`;
+      });
+      window.addEventListener("unhandledrejection", (e) => {
+        console.error("Unhandled rejection:", e.reason);
+        if (feed) feed.innerHTML = `<div class="error-msg">⚠️ Erreur non gérée (promise).</div>`;
+      });
 
       let supabase = null;
       try {
@@ -474,12 +483,14 @@
       }
 
       async function getLikeRow(postId, userIdOrNull) {
+        const q = supabase.from("likes").select("post_id").eq("post_id", postId);
+
         if (userIdOrNull === null) {
-          const { data, error } = await supabase.from("likes").select("post_id").eq("post_id", postId).is("user_id", null).maybeSingle();
+          const { data, error } = await q.is("user_id", null).maybeSingle();
           if (error) return { row: null, error };
           return { row: data, error: null };
         } else {
-          const { data, error } = await supabase.from("likes").select("post_id").eq("post_id", postId).eq("user_id", userIdOrNull).maybeSingle();
+          const { data, error } = await q.eq("user_id", userIdOrNull).maybeSingle();
           if (error) return { row: null, error };
           return { row: data, error: null };
         }
@@ -515,13 +526,15 @@
         if (selErr) throw selErr;
 
         if (row) {
-          let query = supabase.from("likes").delete().eq("post_id", postId);
-          if (userIdOrNull === null) {
-            query = query.is("user_id", null);
-          } else {
-            query = query.eq("user_id", userIdOrNull);
-          }
-          const { error: delErr } = await query;
+          const { error: delErr } = await supabase
+            .from("likes")
+            .delete()
+            .eq("post_id", postId)
+            .modify(q => {
+              if (userIdOrNull === null) q.is("user_id", null);
+              else q.eq("user_id", userIdOrNull);
+            });
+
           if (delErr) throw delErr;
           return { liked: false };
         }
@@ -560,161 +573,161 @@
       }
 
       async function loadFeed() {
+        // on rend tout de suite un message, mais on ne dépend plus du user/profiles
         feed.innerHTML = '<div class="loading">Chargement des publications...</div>';
 
+        let posts = [];
         try {
-          const { data: posts, error } = await supabase
+          const { data, error } = await supabase
             .from("posts")
             .select("*")
             .order("created_at", { ascending: false });
 
           if (error) throw error;
+          posts = data || [];
+        } catch (error) {
+          feed.innerHTML = `<div class="error-msg">⚠️ Erreur posts: ${escapeHtml(error?.message || String(error))}</div>`;
+          return;
+        }
 
-          if (!posts || posts.length === 0) {
-            feed.innerHTML =
-              '<div class="post" style="text-align:center; color: var(--muted);">📭 Aucune publication pour le moment.</div>';
-            return;
-          }
+        if (!posts.length) {
+          feed.innerHTML =
+            '<div class="post" style="text-align:center; color: var(--muted);">📭 Aucune publication pour le moment.</div>';
+          return;
+        }
 
-          const user = await getSessionUser();
-          const userIdOrNull = user ? user.id : null;
+        // ✅ IMPORTANT : on tente l’auth, mais si ça échoue on affiche quand même les posts
+        let userIdOrNull = null;
+        try {
+          const user = await getSessionUser(); // peut échouer/timer out selon navigateur
+          userIdOrNull = user ? user.id : null;
+        } catch (e) {
+          console.warn("getSessionUser failed:", e);
+          userIdOrNull = null;
+        }
 
-          feed.innerHTML = "";
+        feed.innerHTML = "";
 
-          for (const p of posts) {
-            const card = document.createElement("div");
-            card.className = "post";
+        for (const p of posts) {
+          const card = document.createElement("div");
+          card.className = "post";
 
-            const timeStr = p.created_at ? new Date(p.created_at).toLocaleString() : "";
-            const username = p.user_username || "Utilisateur";
+          const timeStr = p.created_at ? new Date(p.created_at).toLocaleString() : "";
+          const username = p.user_username || "Utilisateur";
 
-            const mediaHtml = p.media_url
-              ? (p.media_type === "video"
-                ? `<video src="${escapeHtml(p.media_url)}" controls playsinline></video>`
-                : `<img src="${escapeHtml(p.media_url)}" alt="media" loading="lazy" />`)
-              : "";
+          const mediaHtml = p.media_url
+            ? (p.media_type === "video"
+              ? `<video src="${escapeHtml(p.media_url)}" controls playsinline></video>`
+              : `<img src="${escapeHtml(p.media_url)}" alt="media" loading="lazy" />`)
+            : "";
 
-            const likesCountElId = `likesCount-${p.id}`;
-            const likeBtnId = `likeBtn-${p.id}`;
-            const commentsBoxId = `comments-${p.id}`;
-            const commentInputId = `commentInput-${p.id}`;
+          const likesCountElId = `likesCount-${p.id}`;
+          const likeBtnId = `likeBtn-${p.id}`;
+          const commentsBoxId = `comments-${p.id}`;
+          const commentInputId = `commentInput-${p.id}`;
 
-            card.innerHTML = `
-              <div class="meta">
-                <div class="author">
-                  <div class="avatar">${escapeHtml(avatarLetter(username))}</div>
-                  <div>${escapeHtml(username)}</div>
-                </div>
-                <div class="time">${escapeHtml(timeStr)}</div>
+          card.innerHTML = `
+            <div class="meta">
+              <div class="author">
+                <div class="avatar">${escapeHtml(avatarLetter(username))}</div>
+                <div>${escapeHtml(username)}</div>
               </div>
+              <div class="time">${escapeHtml(timeStr)}</div>
+            </div>
 
-              ${p.caption ? `<div class="caption">${escapeHtml(p.caption)}</div>` : ""}
+            ${p.caption ? `<div class="caption">${escapeHtml(p.caption)}</div>` : ""}
 
-              ${mediaHtml}
+            ${mediaHtml}
 
-              <div class="actions">
-                <button class="likeBtn" id="${likeBtnId}" type="button">
-                  ❤️ <span id="${likesCountElId}">...</span>
+            <div class="actions">
+              <button class="likeBtn" id="${likeBtnId}" type="button">
+                ❤️ <span id="${likesCountElId}">...</span>
+              </button>
+            </div>
+
+            <div class="commentBox">
+              <div class="commentRow">
+                <input id="${commentInputId}" placeholder="${userIdOrNull ? 'Écrire un commentaire...' : 'Écrire un commentaire (anonyme)...'}" />
+                <button class="btn-secondary" type="button" id="btnComment-${p.id}" style="flex:0 0 auto; width:auto; padding:10px 14px;">
+                  Envoyer
                 </button>
               </div>
+              <div id="${commentsBoxId}"></div>
+            </div>
+          `;
 
-              <div class="commentBox">
-                <div class="commentRow">
-                  <input id="${commentInputId}" placeholder="${user ? 'Écrire un commentaire...' : 'Connectez-vous pour commenter'}" />
-                  <button class="btn-secondary" type="button" id="btnComment-${p.id}" style="flex:0 0 auto; width:auto; padding:10px 14px;">
-                    Envoyer
-                  </button>
-                </div>
+          feed.appendChild(card);
 
-                <div id="${commentsBoxId}"></div>
-              </div>
-            `;
+          // likes/comments en best-effort: si Edge bug auth, ça ne bloque plus l’affichage des posts
+          (async () => {
+            try {
+              const count = await countLikes(p.id);
+              document.getElementById(likesCountElId).textContent = String(count);
 
-            feed.appendChild(card);
-
-            const likeBtn = document.getElementById(likeBtnId);
-
-            likeBtn.addEventListener("click", async () => {
-              try {
-                const currentUser = await getSessionUser();
-                if (!currentUser) {
-                  alert("Connectez-vous pour liker");
-                  return;
-                }
-                
-                await toggleLike(p.id);
-                const count = await countLikes(p.id);
-                document.getElementById(likesCountElId).textContent = String(count);
-
-                const { row } = await getLikeRow(p.id, currentUser.id);
-                likeBtn.classList.toggle("liked", !!row);
-              } catch (e) {
-                alert(e?.message || String(e));
+              if (userIdOrNull) {
+                const { row } = await getLikeRow(p.id, userIdOrNull);
+                document.getElementById(likeBtnId).classList.toggle("liked", !!row);
               }
-            });
+            } catch (e) {
+              console.warn("likes init failed:", e);
+              document.getElementById(likesCountElId).textContent = "0";
+            }
 
-            const btnComment = document.getElementById(`btnComment-${p.id}`);
-            btnComment.addEventListener("click", async () => {
-              try {
-                const currentUser = await getSessionUser();
-                if (!currentUser) {
-                  alert("Connectez-vous pour commenter");
-                  return;
-                }
-                
-                const input = document.getElementById(commentInputId);
-                await addComment(p.id, input.value);
-                input.value = "";
-
-                const comments = await loadComments(p.id);
-                const commentsBox = document.getElementById(commentsBoxId);
-                commentsBox.innerHTML = comments.length
-                  ? comments.map(c => `
+            try {
+              const comments = await loadComments(p.id);
+              const commentsBox = document.getElementById(commentsBoxId);
+              commentsBox.innerHTML = comments.length
+                ? comments.map(c => `
                     <div class="commentItem">
                       <div class="u">${escapeHtml(c.user_username || 'Utilisateur')}</div>
                       <div class="c">${escapeHtml(c.content || '')}</div>
                       <div class="t">${c.created_at ? escapeHtml(new Date(c.created_at).toLocaleString()) : ''}</div>
                     </div>
                   `).join("")
-                  : `<div style="color:var(--muted); font-weight:850; margin-top:10px;">Pas encore de commentaires.</div>`;
-              } catch (e) {
-                alert(e?.message || String(e));
+                : `<div style="color:var(--muted); font-weight:850; margin-top:10px;">Pas encore de commentaires.</div>`;
+            } catch (e) {
+              console.warn("comments init failed:", e);
+            }
+          })();
+
+          // Like click
+          document.getElementById(likeBtnId).addEventListener("click", async () => {
+            try {
+              await toggleLike(p.id);
+              const count = await countLikes(p.id);
+              document.getElementById(likesCountElId).textContent = String(count);
+
+              if (userIdOrNull) {
+                const { row } = await getLikeRow(p.id, userIdOrNull);
+                document.getElementById(likeBtnId).classList.toggle("liked", !!row);
               }
-            });
+            } catch (e) {
+              alert(e?.message || String(e));
+            }
+          });
 
-            // Initial render likes + comments
-            (async () => {
-              try {
-                const count = await countLikes(p.id);
-                const countSpan = document.getElementById(likesCountElId);
-                if (countSpan) countSpan.textContent = String(count);
+          // Comment click
+          document.getElementById(`btnComment-${p.id}`).addEventListener("click", async () => {
+            try {
+              const input = document.getElementById(commentInputId);
+              await addComment(p.id, input.value);
+              input.value = "";
 
-                if (userIdOrNull) {
-                  const { row } = await getLikeRow(p.id, userIdOrNull);
-                  likeBtn.classList.toggle("liked", !!row);
-                }
-
-                const comments = await loadComments(p.id);
-                const commentsBox = document.getElementById(commentsBoxId);
-                if (commentsBox) {
-                  commentsBox.innerHTML = comments.length
-                    ? comments.map(c => `
-                      <div class="commentItem">
-                        <div class="u">${escapeHtml(c.user_username || 'Utilisateur')}</div>
-                        <div class="c">${escapeHtml(c.content || '')}</div>
-                        <div class="t">${c.created_at ? escapeHtml(new Date(c.created_at).toLocaleString()) : ''}</div>
-                      </div>
-                    `).join("")
-                    : `<div style="color:var(--muted); font-weight:850; margin-top:10px;">Pas encore de commentaires.</div>`;
-                }
-              } catch (err) {
-                console.warn("Erreur chargement likes/comments:", err);
-              }
-            })();
-          }
-        } catch (error) {
-          console.error("Erreur chargement feed:", error);
-          feed.innerHTML = `<div class="error-msg">⚠️ Erreur: ${escapeHtml(error?.message || String(error))}</div>`;
+              const comments = await loadComments(p.id);
+              const commentsBox = document.getElementById(commentsBoxId);
+              commentsBox.innerHTML = comments.length
+                ? comments.map(c => `
+                    <div class="commentItem">
+                      <div class="u">${escapeHtml(c.user_username || 'Utilisateur')}</div>
+                      <div class="c">${escapeHtml(c.content || '')}</div>
+                      <div class="t">${c.created_at ? escapeHtml(new Date(c.created_at).toLocaleString()) : ''}</div>
+                    </div>
+                  `).join("")
+                : `<div style="color:var(--muted); font-weight:850; margin-top:10px;">Pas encore de commentaires.</div>`;
+            } catch (e) {
+              alert(e?.message || String(e));
+            }
+          });
         }
       }
 
@@ -784,18 +797,15 @@
           const { error } = await supabase.auth.signInWithPassword({ email, password });
           if (error) throw error;
 
-          // Attendre que la session soit établie
-          await new Promise(resolve => setTimeout(resolve, 500));
-          
           const profile = await getMyProfile();
           authBadge.textContent = `Connecté : ${profile?.username || email}`;
 
           loginMsg.className = "msg ok";
           loginMsg.textContent = "Connecté ✅";
-          
           setLoggedUI(true);
+
+          // ✅ IMPORTANT : forcer refresh direct
           await loadFeed();
-          
         }catch(e){
           loginMsg.className = "msg err";
           loginMsg.textContent = e?.message || String(e);
@@ -879,12 +889,13 @@
         }
       });
 
-      // Écouter les changements d'authentification
-      supabase.auth.onAuthStateChange(async (event, session) => {
+      supabase.auth.onAuthStateChange(async (_event, session) => {
         if (session?.user) {
           setLoggedUI(true);
           const profile = await getMyProfile();
           authBadge.textContent = `Connecté : ${profile?.username || session.user.email}`;
+
+          // ✅ IMPORTANT pour Edge/refresh timing
           await loadFeed();
         } else {
           setLoggedUI(false);
@@ -896,9 +907,8 @@
       // Initial load
       loadFeed();
 
-      // Vérification initiale de l'utilisateur
-      (async () => {
-        const { data: { user } } = await supabase.auth.getUser();
+      // Mise à jour badge (optionnel mais utile)
+      supabase.auth.getUser().then(async ({ data: { user } }) => {
         if (user) {
           const profile = await getMyProfile();
           authBadge.textContent = `Connecté : ${profile?.username || user.email}`;
@@ -907,7 +917,10 @@
           authBadge.textContent = "Connecte-toi pour interagir";
           setLoggedUI(false);
         }
-      })();
+      }).catch(() => {
+        authBadge.textContent = "Connecte-toi pour interagir";
+        setLoggedUI(false);
+      });
     });
   </script>
 </body>
