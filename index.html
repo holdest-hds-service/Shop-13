@@ -55,7 +55,6 @@
         .header-text h1 { font-size: clamp(1rem,2.5vw,1.4rem); font-weight: 700; color: var(--green-dark); }
         .header-text p { font-size: clamp(0.6rem,1.2vw,0.75rem); color: var(--text-soft); }
 
-        /* Style pour le nom utilisateur cliquable */
         .user-profile-btn {
             display: flex;
             align-items: center;
@@ -84,7 +83,6 @@
         .btn-dark { background: #1a1a1a; border: 2px solid #ff8c42; color: #ff8c42; }
         .btn-green { background: var(--green); color: white; border: none; }
 
-        /* Boutons de langue */
         .lang-selector {
             display: flex;
             gap: 4px;
@@ -139,7 +137,6 @@
             cursor: pointer; border: var(--border-soft);
         }
         .card:active { transform: scale(0.98); }
-        /* Images en taille automatique (hauteur auto, largeur max) */
         .card-img {
             width: 100%;
             height: auto;
@@ -174,7 +171,6 @@
         .reserve-btn { background: var(--green); color: white; }
         .outline-btn { background: transparent; border: 2px solid var(--green); color: var(--green); }
 
-        /* Lightbox pour agrandir les images */
         .lightbox-overlay {
             display: none;
             position: fixed;
@@ -369,6 +365,36 @@
         .partner-card .partner-content p { font-size: 0.85rem; color: var(--text-soft); margin-bottom: 12px; }
         .partner-card .partner-contact { font-size: 0.8rem; color: var(--primary-dark); border-top: 1px solid #eee; padding-top: 10px; margin-top: 8px; }
 
+        /* SECTION PARTENAIRE CARD */
+        .partenaire-section {
+            margin: 32px 0;
+        }
+        .partenaire-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
+        .partenaire-card h4 {
+            color: var(--green-dark);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .partenaire-card .partenaire-type {
+            background: var(--primary);
+            color: white;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+        }
+        .partenaire-card p { font-size: 0.85rem; color: var(--text-soft); margin: 8px 0; }
+        .partenaire-card .partenaire-contact { font-size: 0.8rem; color: var(--primary-dark); margin-top: 10px; }
+
         .programme-detail {
             background: white;
             border-radius: var(--radius-lg);
@@ -412,7 +438,6 @@
             border: 2px solid var(--primary);
         }
 
-        /* Espace Manager - caché par défaut (visible seulement pour admin) */
         .manager-badge {
             background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
             color: #ff8c42;
@@ -423,9 +448,7 @@
             text-align: center;
             display: none;
         }
-        .manager-badge.visible {
-            display: block;
-        }
+        .manager-badge.visible { display: block; }
         .manager-badge h4 { color: #ff8c42; font-size: 1.2rem; margin-bottom: 12px; }
         .manager-badge .code-box {
             background: #333;
@@ -533,7 +556,6 @@
         .culture-card h5 { color: var(--primary-dark); margin-bottom: 8px; }
         .culture-card p { font-size: 0.85rem; color: var(--text-soft); }
 
-        /* Bandeau garantie */
         .garantie-badge {
             background: #e8f5e9;
             border: 2px solid #2e7d32;
@@ -544,7 +566,6 @@
         }
         .garantie-badge i { color: #2e7d32; font-size: 1.5rem; margin-bottom: 8px; display: block; }
 
-        /* Profil utilisateur modal */
         .profile-detail-item {
             display: flex;
             justify-content: space-between;
@@ -554,12 +575,58 @@
         .profile-detail-label { font-weight: 600; color: var(--green-dark); }
         .profile-detail-value { color: var(--text-soft); }
 
+        /* GALERIE IMMERSIVE */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 16px;
+            margin: 20px 0 32px 0;
+        }
+        .gallery-item {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            cursor: pointer;
+            aspect-ratio: 4 / 3;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.3s;
+        }
+        .gallery-item:hover { transform: scale(1.02); }
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+        .gallery-item:hover img { transform: scale(1.05); }
+        .gallery-item .gallery-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            color: white;
+            padding: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* MINI MAP */
+        .mini-map-container {
+            height: 200px;
+            border-radius: 16px;
+            overflow: hidden;
+            margin: 16px 0;
+        }
+        #miniMap { height: 100%; width: 100%; }
+
         @media (max-width: 480px) {
             .header-buttons { gap: 4px; }
             .btn-sm { padding: 6px 10px; font-size: 0.65rem; }
             .tab-item { font-size: 0.55rem; }
             .tab-item i { font-size: 1rem; }
             .cards-grid { grid-template-columns: 1fr; }
+            .gallery-grid { grid-template-columns: repeat(2, 1fr); }
         }
         @media (min-width: 768px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (min-width: 1024px) { .cards-grid { grid-template-columns: repeat(3, 1fr); } }
@@ -582,7 +649,6 @@
         </div>
     </div>
     <div class="header-buttons" id="headerButtons">
-        <!-- Sélecteur de langue -->
         <div class="lang-selector">
             <button class="lang-btn active" data-lang="fr" onclick="changeLanguage('fr')">🇫🇷</button>
             <button class="lang-btn" data-lang="en" onclick="changeLanguage('en')">🇬🇧</button>
@@ -635,7 +701,12 @@
         </div>
     </div>
 
-    <!-- GARANTIE DE CONFIANCE (placée en dessous de "Guide conforme" et "Votre retard") -->
+    <!-- 🌟 NOUVEAU : GALERIE IMMERSIVE MADAGASCAR EN IMAGES -->
+    <h2 class="section-title">📸 Madagascar en images</h2>
+    <p style="margin-bottom:16px;">Laissez-vous inspirer par la beauté de l'île rouge</p>
+    <div class="gallery-grid" id="galleryGrid"></div>
+
+    <!-- GARANTIE DE CONFIANCE -->
     <div class="info-rapide">
         <div class="info-rapide-item" onclick="showSecuriteModal()">
             <i class="fas fa-first-aid" style="color:#2980b9;"></i>
@@ -662,14 +733,27 @@
 
     <h2 class="section-title">✨ <span data-lang-fr="Destinations d'exception" data-lang-en="Exceptional Destinations" data-lang-it="Destinazioni d'Eccezione">Destinations d'exception</span></h2>
     <div class="cards-grid" id="destinationsGrid"></div>
+    
     <h2 class="section-title" style="margin-top:32px;">🛡️ <span data-lang-fr="Nos formules" data-lang-en="Our Formulas" data-lang-it="Le Nostre Formule">Nos formules</span></h2>
     <p class="section-subtitle" data-lang-fr="Cliquez sur une formule pour voir le détail complet" data-lang-en="Click on a formula to see full details" data-lang-it="Clicca su una formula per vedere i dettagli completi">Cliquez sur une formule pour voir le détail complet</p>
     <div class="cards-grid" id="servicesGrid"></div>
+    
     <h2 class="section-title" style="margin-top:32px;">🎉 <span data-lang-fr="Sorties nocturnes par ville" data-lang-en="Nightlife by City" data-lang-it="Vita Notturna per Città">Sorties nocturnes par ville</span></h2>
     <p class="section-subtitle" data-lang-fr="Découvrez la vie nocturne de chaque destination (accès libre)" data-lang-en="Discover the nightlife of each destination (free access)" data-lang-it="Scopri la vita notturna di ogni destinazione (accesso libero)">Découvrez la vie nocturne de chaque destination (accès libre)</p>
     <div class="cards-grid" id="sortiesAccueilGrid"></div>
+    
     <h2 class="section-title" style="margin-top:32px;">🤝 <span data-lang-fr="Partenaires locaux de confiance" data-lang-en="Trusted Local Partners" data-lang-it="Partner Locali di Fiducia">Partenaires locaux de confiance</span></h2>
     <div class="partners-grid" id="partnersGrid"></div>
+
+    <!-- 🌟 NOUVEAU : SECTION PARTENAIRES AVEC FORMULAIRE D'INSCRIPTION -->
+    <div class="partenaire-section">
+        <h2 class="section-title">🏢 Devenir partenaire HOLDEST</h2>
+        <p style="margin-bottom:16px;">Vous avez un hôtel, des véhicules, du matériel de plongée ou tout autre service ? Rejoignez notre réseau de confiance et gagnez en visibilité.</p>
+        <button class="reserve-btn" onclick="openModal('partenaireModal')" style="margin-bottom:24px;"><i class="fas fa-handshake"></i> Je propose mes services</button>
+        
+        <h2 class="section-title">🌟 Nos partenaires actifs</h2>
+        <div id="partenairesList"></div>
+    </div>
 
     <!-- ESPACE MANAGER -->
     <div class="manager-badge" id="managerSection">
@@ -692,6 +776,11 @@
 <div id="budgetScreen" class="screen">
     <h2 class="section-title">💰 <span data-lang-fr="Calculez votre budget détaillé" data-lang-en="Calculate Your Detailed Budget" data-lang-it="Calcola il Tuo Budget Dettagliato">Calculez votre budget détaillé</span></h2>
     <p class="section-subtitle" data-lang-fr="Simulez votre voyage avec précision (Confort, Premium, Luxe)" data-lang-en="Simulate your trip with precision (Comfort, Premium, Luxe)" data-lang-it="Simula il tuo viaggio con precisione (Confort, Premium, Lusso)">Simulez votre voyage avec précision (Confort, Premium, Luxe)</p>
+
+    <!-- 🌟 NOUVEAU : MINI CARTE POUR VISUALISER LA DESTINATION -->
+    <div class="mini-map-container">
+        <div id="miniMap" style="height:200px; border-radius:16px;"></div>
+    </div>
 
     <div class="people-selector">
         <button data-people="1" class="active">👤 <span data-lang-fr="Seul(e)" data-lang-en="Solo" data-lang-it="Solo">Seul(e)</span></button>
@@ -864,6 +953,32 @@
             <input type="hidden" id="devisBudgetTotal" value="">
             <button type="submit" class="btn-full" style="background:var(--green); color:white;">📩 <span data-lang-fr="Envoyer ma demande" data-lang-en="Send my request" data-lang-it="Invia la mia richiesta">Envoyer ma demande</span></button>
             <button type="button" class="btn-full" style="background:#ddd;" onclick="closeModal('devisModal')"><span data-lang-fr="Annuler" data-lang-en="Cancel" data-lang-it="Annulla">Annuler</span></button>
+        </form>
+    </div>
+</div>
+
+<!-- 🌟 NOUVEAU : MODALE PARTENAIRE -->
+<div class="modal-overlay" id="partenaireModal">
+    <div class="modal-box">
+        <h3>🤝 <span data-lang-fr="Devenir partenaire HOLDEST" data-lang-en="Become a HOLDEST Partner" data-lang-it="Diventa Partner HOLDEST">Devenir partenaire HOLDEST</span></h3>
+        <p style="font-size:0.85rem; color:var(--text-soft); margin-bottom:16px;" data-lang-fr="Remplissez ce formulaire pour rejoindre notre réseau de confiance." data-lang-en="Fill out this form to join our trusted network." data-lang-it="Compila questo modulo per entrare nella nostra rete di fiducia.">Remplissez ce formulaire pour rejoindre notre réseau de confiance.</p>
+        <form id="partenaireForm">
+            <input type="text" id="partenaireNom" placeholder="Nom de l'entreprise / Nom complet *" required>
+            <input type="email" id="partenaireEmail" placeholder="Email *" required>
+            <input type="tel" id="partenaireTel" placeholder="Téléphone *" required>
+            <select id="partenaireType" required>
+                <option value="">Type de service *</option>
+                <option value="hebergement">🏨 Hébergement (hôtel, lodge, gîte, appartement)</option>
+                <option value="vehicule">🚗 Véhicules (4x4, taxi, transfert)</option>
+                <option value="equipement">⛺ Équipements (plongée, rando, matériel)</option>
+                <option value="restauration">🍽️ Restauration / Traiteur</option>
+                <option value="activite">🎯 Activités / Excursions</option>
+                <option value="autre">📌 Autre service</option>
+            </select>
+            <textarea id="partenaireDescription" rows="4" placeholder="Décrivez vos services, tarifs, disponibilités, zones d'activité..." required></textarea>
+            <input type="text" id="partenaireVille" placeholder="Ville / Région d'activité *" required>
+            <button type="submit" class="btn-full" style="background:var(--green); color:white;">📩 <span data-lang-fr="Envoyer ma candidature" data-lang-en="Send my application" data-lang-it="Invia la mia candidatura">Envoyer ma candidature</span></button>
+            <button type="button" class="btn-full" style="background:#ddd;" onclick="closeModal('partenaireModal')"><span data-lang-fr="Annuler" data-lang-en="Cancel" data-lang-it="Annulla">Annuler</span></button>
         </form>
     </div>
 </div>
@@ -1122,35 +1237,45 @@
     let currentPeopleCount = 1;
     let currentLang = 'fr';
 
+    // 🌟 NOUVEAU : Stockage des partenaires
+    let partenairesList = [];
+
+    // 🌟 NOUVEAU : Galerie d'images immersives
+    const galleryImages = [
+        { src: "https://images.unsplash.com/photo-1590523741831-ab7e8b8f9c7f?w=600", title: "Nosy Be - Plage paradisiaque" },
+        { src: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600", title: "Lodge de charme" },
+        { src: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=600", title: "Allée des Baobabs" },
+        { src: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600", title: "Lémurien" },
+        { src: "https://images.unsplash.com/photo-1523805009345-7448845a9e53?w=600", title: "Tsingy de Bemaraha" },
+        { src: "https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=600", title: "Plage de sable blanc" }
+    ];
+
     // ==================== LANGUE ====================
     function changeLanguage(lang) {
         currentLang = lang;
-        // Mise à jour des boutons de langue
         document.querySelectorAll('.lang-btn').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.lang === lang);
         });
-        // Mise à jour de tous les éléments avec data-lang-xx
         document.querySelectorAll('[data-lang-fr]').forEach(el => {
             const text = el.getAttribute(`data-lang-${lang}`);
             if (text) el.innerHTML = text;
         });
-        // Mise à jour des placeholders
         document.querySelectorAll('[data-placeholder-fr]').forEach(el => {
             const placeholder = el.getAttribute(`data-placeholder-${lang}`);
             if (placeholder) el.placeholder = placeholder;
         });
-        // Mise à jour du search input placeholder
         const searchPlaceholders = {
             fr: 'Rechercher une destination...',
             en: 'Search a destination...',
             it: 'Cerca una destinazione...'
         };
         document.getElementById('searchInput').placeholder = searchPlaceholders[lang] || searchPlaceholders.fr;
-        // Re-rendre les éléments dynamiques
         updateOriginInfo();
         updateBudgetDisplay();
         if (isLoggedIn) updateMonVoyageDisplay();
         if (isLoggedIn && userCity) updateExtrasDisplay(userCity);
+        renderPartenairesList(); // Refresh partenaires list
+        renderGallery();
     }
 
     // ==================== LIGHTBOX ====================
@@ -1164,6 +1289,82 @@
     function closeLightbox() {
         const lightbox = document.getElementById('lightboxOverlay');
         lightbox.classList.remove('active');
+    }
+
+    // 🌟 NOUVEAU : Rendu de la galerie
+    function renderGallery() {
+        const galleryGrid = document.getElementById('galleryGrid');
+        if (galleryGrid) {
+            galleryGrid.innerHTML = galleryImages.map(img => `
+                <div class="gallery-item" onclick="openLightbox('${img.src}')">
+                    <img src="${img.src}" alt="${img.title}" loading="lazy">
+                    <div class="gallery-overlay">${img.title}</div>
+                </div>
+            `).join('');
+        }
+    }
+
+    // 🌟 NOUVEAU : Gestion des partenaires
+    function renderPartenairesList() {
+        const container = document.getElementById('partenairesList');
+        if (!container) return;
+        if (partenairesList.length === 0) {
+            container.innerHTML = '<p style="color:var(--text-soft); text-align:center;">Aucun partenaire pour le moment. Soyez le premier à nous rejoindre !</p>';
+            return;
+        }
+        const typeLabels = {
+            hebergement: { fr: "🏨 Hébergement", en: "🏨 Accommodation", it: "🏨 Alloggio" },
+            vehicule: { fr: "🚗 Véhicule", en: "🚗 Vehicle", it: "🚗 Veicolo" },
+            equipement: { fr: "⛺ Équipement", en: "⛺ Equipment", it: "⛺ Attrezzatura" },
+            restauration: { fr: "🍽️ Restauration", en: "🍽️ Catering", it: "🍽️ Ristorazione" },
+            activite: { fr: "🎯 Activité", en: "🎯 Activity", it: "🎯 Attività" },
+            autre: { fr: "📌 Autre", en: "📌 Other", it: "📌 Altro" }
+        };
+        container.innerHTML = partenairesList.map(p => `
+            <div class="partenaire-card">
+                <h4><i class="fas fa-building"></i> ${p.nom} <span class="partenaire-type">${typeLabels[p.type]?.[currentLang] || p.type}</span></h4>
+                <p><strong>📍 ${p.ville}</strong></p>
+                <p>${p.description.substring(0, 150)}${p.description.length > 150 ? '...' : ''}</p>
+                <div class="partenaire-contact"><i class="fas fa-phone-alt"></i> ${p.telephone} | <i class="fas fa-envelope"></i> ${p.email}</div>
+                <button class="reserve-btn" style="margin-top:12px;" onclick="window.location.href='mailto:${p.email}'">Contacter</button>
+            </div>
+        `).join('');
+    }
+
+    function savePartenairesToLocal() {
+        localStorage.setItem('holdest_partenaires', JSON.stringify(partenairesList));
+    }
+
+    function loadPartenaires() {
+        const stored = localStorage.getItem('holdest_partenaires');
+        if (stored) {
+            partenairesList = JSON.parse(stored);
+            renderPartenairesList();
+        }
+    }
+
+    // 🌟 NOUVEAU : Mini carte pour le simulateur
+    let miniMap = null;
+    function updateMiniMap(locationKey) {
+        const coords = {
+            tana: [-18.8792, 47.5079],
+            majunga: [-15.7167, 46.3167],
+            nosybe: [-13.3122, 48.2748],
+            diego: [-12.2694, 49.2910],
+            tamatave: [-18.1543, 49.4021]
+        };
+        const names = {
+            tana: "Antananarivo",
+            majunga: "Majunga",
+            nosybe: "Nosy Be",
+            diego: "Diego Suarez",
+            tamatave: "Tamatave"
+        };
+        const latlng = coords[locationKey] || coords.tana;
+        if (miniMap) miniMap.remove();
+        miniMap = L.map('miniMap').setView(latlng, 8);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(miniMap);
+        L.marker(latlng).addTo(miniMap).bindPopup(`📍 ${names[locationKey]}`);
     }
 
     // ==================== TAUX DE CHANGE ====================
@@ -1544,6 +1745,7 @@
         updateMonVoyageDisplay();
         updateExtrasDisplay(userCity);
         updateManagerCommission();
+        updateMiniMap(userCity);
         activateScreen('budget');
     }
 
@@ -1918,6 +2120,26 @@
         document.getElementById('rootsDevisForm').reset();
     }
 
+    // 🌟 NOUVEAU : Formulaire partenaire
+    document.getElementById('partenaireForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const nouveauPartenaire = {
+            nom: document.getElementById('partenaireNom').value,
+            email: document.getElementById('partenaireEmail').value,
+            telephone: document.getElementById('partenaireTel').value,
+            type: document.getElementById('partenaireType').value,
+            description: document.getElementById('partenaireDescription').value,
+            ville: document.getElementById('partenaireVille').value,
+            date: new Date().toLocaleDateString()
+        };
+        partenairesList.push(nouveauPartenaire);
+        savePartenairesToLocal();
+        renderPartenairesList();
+        showToast("✅ Merci ! Votre demande a été enregistrée. Nous vous contacterons sous 48h.");
+        closeModal('partenaireModal');
+        this.reset();
+    });
+
     document.getElementById("formulaSelector").addEventListener("click", e => {
         if (e.target.tagName === 'BUTTON') {
             document.querySelectorAll('#formulaSelector button').forEach(b => b.classList.remove('active'));
@@ -1942,6 +2164,7 @@
             updateBudgetDisplay();
             updateManagerCommission();
             if (isLoggedIn) updateExtrasDisplay(e.target.dataset.loc);
+            updateMiniMap(e.target.dataset.loc);
         }
     });
 
@@ -2057,8 +2280,8 @@
         Object.values(screens).forEach(s => s.classList.remove('active'));
         screens[id].classList.add('active');
         document.querySelectorAll('.tab-item').forEach(t => t.classList.toggle('active', t.dataset.screen === id));
-        if (id === 'home') { renderDestinations(); renderServices(); renderSortiesAccueil(); renderTestimonials(); renderPartners(); updateOriginInfo(); updateMonVoyageDisplay(); updateManagerCommission(); }
-        if (id === 'budget') { updateBudgetDisplay(); updateManagerCommission(); if (isLoggedIn && userCity) updateExtrasDisplay(userCity); }
+        if (id === 'home') { renderDestinations(); renderServices(); renderSortiesAccueil(); renderTestimonials(); renderPartners(); updateOriginInfo(); updateMonVoyageDisplay(); updateManagerCommission(); renderGallery(); renderPartenairesList(); }
+        if (id === 'budget') { updateBudgetDisplay(); updateManagerCommission(); if (isLoggedIn && userCity) updateExtrasDisplay(userCity); updateMiniMap(userCity || 'tana'); }
         if (id === 'transport') { const al = document.querySelector('#transportLocationSelector button.active'); updateTransportDisplay(al ? al.dataset.loc : 'tana'); }
         if (id === 'bbq') renderSortiesBBQ();
         if (id === 'explore') { initMap(); renderFAQ(); }
@@ -2088,6 +2311,7 @@
     // Initialisation
     fetchExchangeRate();
     setInterval(fetchExchangeRate, 3600000);
+    loadPartenaires();
     changeLanguage('fr');
     renderDestinations();
     renderServices();
@@ -2095,10 +2319,12 @@
     renderTestimonials();
     renderFAQ();
     renderPartners();
+    renderGallery();
+    renderPartenairesList();
     updateBudgetDisplay();
     updateTransportDisplay('tana');
     updateManagerCommission();
     activateScreen('home');
 </script>
 </body>
-    </html>
+                  </html>
